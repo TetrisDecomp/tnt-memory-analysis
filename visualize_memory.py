@@ -2,7 +2,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 
 dimensions = (256,512)
-data_path = "../server/bin/dump.data"
+data_path = "./bin/dump.data"
 
 def image_from_data (data):
     image_size = (40,20) 

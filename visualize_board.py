@@ -5,7 +5,7 @@ board_width = 10
 board_height = 20
 pixel_size = 30
 dimensions = (board_width*pixel_size, board_height*pixel_size)
-data_path = "../server/bin/dump.data"
+data_path = "./bin/dump.data"
 piece_colors = ["pink", "purple", "red", "green", "yellow", "cyan", "gray", "black"]
 window = tk.Tk()
 canvas = tk.Canvas(window, width=dimensions[0], height=dimensions[1])
