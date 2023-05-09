@@ -5,7 +5,7 @@ const handleConnection = (connection) => {
     console.log('client connected')
 
     const onConnData = (data) => {  
-        fs.writeFile(`./bin/dump.data`, data, err => {
+        fs.writeFile(`./dump.data`, data, err => {
             if (err) {
                 console.error(err)
             }
