@@ -1,14 +1,11 @@
 import tkinter as tk
 
 def parse_int_bitfield(amount, integer):
-    current_value = integer
     result = []
-    for power in reversed(range(amount)):
-        if 2**power <= current_value:
-            result.insert(0, True)
-            current_value = current_value - 2**power
-        else:
-            result.insert(0, False)
+    while amount > 0:
+        result.append(integer & 1)
+        integer >>= 1
+        amount -= 1
     return result
 
 board_width = 10
@@ -22,7 +19,7 @@ stats_height = 256
 
 game_board = [[[] for x in range(board_width)] for y in range(board_height)]
 
-data_path = "./bin/dump.data"
+data_path = "./dump.data"
 piece_colors = [{"name": 'L', "color": '#c148cf'},
                 {"name": 'J', "color": '#602b8f'}, 
                 {"name": 'Z', "color": '#c41f1f'}, 
