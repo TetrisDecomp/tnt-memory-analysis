@@ -1,11 +1,13 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 
-dimensions = (256,512)
+dimensions = (512,512)
 data_path = "./dump.data"
 
-def image_from_data (data):
-    image_size = (40,20) 
+#TODO: dynamically adjust dimensions on window resize
+def image_from_data(data):
+    side = int((len(data)//4)**(1/2) // 1)
+    image_size = (side,side)
     image = Image.frombytes('RGBA', image_size, data, 'raw').resize(dimensions, Image.BOX)
     return image
 
