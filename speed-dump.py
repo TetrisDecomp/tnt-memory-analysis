@@ -24,8 +24,10 @@ def main():
         from mems.linuxmupen import LinuxMupenMemory
         mem = LinuxMupenMemory(verbose=args.verbose)
     elif system == 'Windows':
-        print(f"unsupported system: {system}", file=sys.stderr)
-        sys.exit(1)
+        if args.verbose:
+            print(f"detected system: {system}", file=sys.stderr)
+        from mems.windowsproject64 import WindowsProject64Memory
+        mem = WindowsProject64Memory(verbose=args.verbose)
     elif system == 'Darwin':
         print(f"unsupported system: {system}", file=sys.stderr)
         sys.exit(1)

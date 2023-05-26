@@ -10,12 +10,16 @@ class LinuxProcessMemory(BaseProcessMemory):
         self.verbose = verbose
         self.mem_file = None
 
-    def open_mem(self, p):
-        self.mem_file = open(f"/proc/{p.pid}/mem", 'rb', 0)
+    def open_mem(self, pid):
+        self.mem_file = open(f"/proc/{pid}/mem", 'rb', 0)
 
     def read_mem(self, addr, length):
         self.mem_file.seek(addr)
-        return self.mem_file.read(length)
+        try :
+            data = self.mem_file.read(length)
+        except OSError as error:
+            data = bytes()
+        return data
 
     def find_process(self, name):
         for p in psutil.process_iter():
