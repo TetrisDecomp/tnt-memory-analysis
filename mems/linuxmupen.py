@@ -19,8 +19,8 @@ class LinuxMupenMemory(LinuxProcessMemory):
         _, end = self.mmap_addr(mmaps[-1])
 
         # magic number 0x9037D0
-        self.offset = end + 0x9037D0 - 0x80000000
+        self.set_offset(end + 0x9037D0 - 0x80000000)
 
-        self.target_byteorder = 'big'
+        self.set_target_byteorder('big')
 
         self.open_mem(p.pid)
