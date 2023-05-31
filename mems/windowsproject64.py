@@ -16,4 +16,4 @@ class WindowsProject64Memory(WindowsProcessMemory):
 
         self.set_target_byteorder('big')
 
-        self.open_process(int(p.Handle))
+        self.open_process(p.pid)

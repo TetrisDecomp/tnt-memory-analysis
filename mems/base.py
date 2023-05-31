@@ -1,16 +1,18 @@
 import sys
 
+import psutil
+
 class BaseProcessMemory:
     def __init__(self):
         self.offset = 0x0
         self.target_byteorder = 'little'  # or 'big'
 
-    # override this method in derived class
     def find_process(self, name):
-        return None
-
-    # override this method in derived class
-    def read_mem(self, addr, length):
+        for p in psutil.process_iter():
+            if name in p.name():
+                if self.verbose:
+                    print(f"process found: {p.pid}\t{p.name()}", file=sys.stderr)
+                return p
         return None
 
     def set_offset(self, offset):
@@ -45,3 +47,7 @@ class BaseProcessMemory:
     def deref(self, addr):
         data = self.read_mem(addr + self.offset, 4)
         return int.from_bytes(data, byteorder=sys.byteorder)
+
+    # override this method in derived class
+    def read_mem(self, addr, length):
+        return None

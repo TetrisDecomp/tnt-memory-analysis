@@ -2,7 +2,6 @@ import sys
 import ctypes
 from ctypes import wintypes
 
-import wmi
 import win32api
 import win32con
 
@@ -18,16 +17,10 @@ class WindowsProcessMemory(BaseProcessMemory):
         self.read_process_memory.restype = wintypes.BOOL
         self.bytes_read = ctypes.c_size_t()
 
+    def open_process(self, pid):
+        self.process = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, 0, pid)
+
     def read_mem(self, addr, length):
         buffer = ctypes.create_string_buffer(length)
         self.read_process_memory(self.process.handle, addr, buffer, length, ctypes.byref(self.bytes_read))
         return bytes(buffer)
-
-    def find_process(self, name):
-        for p in wmi.WMI().Win32_Process():
-            if name in p.name:
-                return p
-        return None
-
-    def open_process(self, pid):
-        self.process = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, 0, pid)
