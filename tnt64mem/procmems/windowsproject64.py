@@ -14,6 +14,4 @@ class WindowsProject64Memory(WindowsProcessMemory):
         # magic number 0xDFE40000
         self.set_offset(0xDFE40000 - 0x80000000)
 
-        self.set_target_byteorder('big')
-
         self.open_process(p.pid)

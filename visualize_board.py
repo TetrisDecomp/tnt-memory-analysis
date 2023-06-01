@@ -8,6 +8,9 @@ import time
 
 import tkinter as tk
 
+def auto_int(x):
+    return int(x, 0)
+
 def parse_int_bitfield(amount, integer):
     result = []
     while amount > 0:
@@ -16,7 +19,7 @@ def parse_int_bitfield(amount, integer):
         amount -= 1
     return result
 
-def mainloop(mem, verbose=False):
+def mainloop(procmem, verbose=False):
     MOBILE_PIECE_POINTER = 0x8011FB70
     MOBILE_PIECE_BUFFER_SIZE = 68
     BOARD_POINTERS = 0x8011FBD0
@@ -41,7 +44,7 @@ def mainloop(mem, verbose=False):
                     {"name": 'O', "color": '#b2b6b8'}, 
                     {"name": 'empty', 'color': '#000000'}] 
 
-    trig_data = struct.unpack('>8i', mem.dump(TRIG_ADDRESS, TRIG_BUFFER_SIZE))
+    trig_data = struct.unpack('>8i', procmem.dump(TRIG_ADDRESS, TRIG_BUFFER_SIZE))
 
     game_board = [[bytes(16) for x in range(BOARD_WIDTH)] for y in range(BOARD_HEIGHT)]
     mobile_piece = b''
@@ -116,10 +119,10 @@ def mainloop(mem, verbose=False):
 
         board_window.update()
         board_window.update_idletasks()
-        board_address = mem.deref(mem.deref(BOARD_POINTERS))
-        mobile_piece_address = mem.deref(MOBILE_PIECE_POINTER)
-        mobile_piece = mem.dump(mobile_piece_address, MOBILE_PIECE_BUFFER_SIZE)
-        board_data = mem.dump(board_address, BOARD_BUFFER_SIZE)
+        board_address = procmem.deref(procmem.deref(BOARD_POINTERS))
+        mobile_piece_address = procmem.deref(MOBILE_PIECE_POINTER)
+        mobile_piece = procmem.dump(mobile_piece_address, MOBILE_PIECE_BUFFER_SIZE)
+        board_data = procmem.dump(board_address, BOARD_BUFFER_SIZE)
 
         try:
             if len(board_data) > 0:
@@ -160,7 +163,7 @@ def mainloop(mem, verbose=False):
                     orientation_data_address = int.from_bytes(mobile_piece[36:40], byteorder='big')  # must specify byteorder for python versions < 3.11
 
                     # TODO: move this outside the loop, since it is static
-                    orientation_data = mem.dump(orientation_data_address, ORIENTATION_DATA_BUFFER_SIZE)
+                    orientation_data = procmem.dump(orientation_data_address, ORIENTATION_DATA_BUFFER_SIZE)
 
                     for index in range(4):
                         x_offset = orientation_data[index * 2 + 1] - mobile_piece[15]
@@ -192,19 +195,34 @@ def mainloop(mem, verbose=False):
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-v', '--verbose', action='store_true', help='increase verbosity')
+    parser.add_argument('--emu', choices=['project64', 'mupen'], default='project64', help='(default: %(default)s)')
+    group_mupen = parser.add_argument_group('mupen', 'When running mupen on the command line, you should see it print out "&ConfigOpenSection is {ADDRESS}".')
+    group_mupen.add_argument('--cos', metavar='ADDRESS', type=auto_int, help='&ConfigOpenSection address')
     args = parser.parse_args()
 
     system = platform.system()
-    if system == 'Linux':
+    if system == 'Windows':
         if args.verbose:
             print(f"detected system: {system}", file=sys.stderr)
-        from mems.linuxmupen import LinuxMupenMemory
-        mem = LinuxMupenMemory(verbose=args.verbose)
-    elif system == 'Windows':
+        if args.emu == 'project64':
+            from tnt64mem.procmems.windowsproject64 import WindowsProject64Memory
+            procmem = WindowsProject64Memory(verbose=args.verbose)
+        else:
+            print(f"unimplemented", file=sys.stderr)
+            sys.exit(1)
+    elif system == 'Linux':
         if args.verbose:
             print(f"detected system: {system}", file=sys.stderr)
-        from mems.windowsproject64 import WindowsProject64Memory
-        mem = WindowsProject64Memory(verbose=args.verbose)
+        if args.emu == 'mupen':
+            if args.cos is not None:
+                from tnt64mem.procmems.linuxmupen import LinuxMupenMemory
+                procmem = LinuxMupenMemory(args.cos, verbose=args.verbose)
+            else:
+                print(f"must specify --cos option", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print(f"unimplemented", file=sys.stderr)
+            sys.exit(1)
     elif system == 'Darwin':
         print(f"unsupported system: {system}", file=sys.stderr)
         sys.exit(1)
@@ -212,7 +230,7 @@ def main():
         print(f"unrecognized system: {system}", file=sys.stderr)
         sys.exit(1)
 
-    mainloop(mem, args.verbose)
+    mainloop(procmem, args.verbose)
 
 if __name__ == "__main__":
     main()

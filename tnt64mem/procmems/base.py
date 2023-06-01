@@ -5,7 +5,7 @@ import psutil
 class BaseProcessMemory:
     def __init__(self):
         self.offset = 0x0
-        self.target_byteorder = 'little'  # or 'big'
+        self.target_byteorder = 'big'  # or 'little'
 
     def find_process(self, name):
         for p in psutil.process_iter():
@@ -44,8 +44,8 @@ class BaseProcessMemory:
 
         return data[(addr & 3) : (addr & 3) + length]
 
-    def deref(self, addr):
-        data = self.read_mem(addr + self.offset, 4)
+    def deref(self, addr, size=4):
+        data = self.read_mem(addr + self.offset, size)
         return int.from_bytes(data, byteorder=sys.byteorder)
 
     # override this method in derived class
