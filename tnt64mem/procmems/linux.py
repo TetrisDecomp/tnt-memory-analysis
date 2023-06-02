@@ -3,9 +3,8 @@ import sys
 from .base import BaseProcessMemory
 
 class LinuxProcessMemory(BaseProcessMemory):
-    def __init__(self, verbose=False):
-        super().__init__()
-        self.verbose = verbose
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mem_file = None
 
     def open_mem(self, pid):

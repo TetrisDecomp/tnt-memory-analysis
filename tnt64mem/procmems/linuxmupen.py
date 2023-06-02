@@ -3,8 +3,8 @@ import sys
 from .linux import LinuxProcessMemory
 
 class LinuxMupenMemory(LinuxProcessMemory):
-    def __init__(self, cos, verbose=False):
-        super().__init__(verbose=verbose)
+    def __init__(self, cos, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         p = self.find_process('mupen64plus')
         if p is None:

@@ -3,7 +3,8 @@ import sys
 import psutil
 
 class BaseProcessMemory:
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
         self.offset = 0x0
         self.target_byteorder = 'big'  # or 'little'
 

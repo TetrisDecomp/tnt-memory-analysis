@@ -3,8 +3,8 @@ import sys
 from .windows import WindowsProcessMemory
 
 class WindowsProject64Memory(WindowsProcessMemory):
-    def __init__(self, verbose=False):
-        super().__init__(verbose=verbose)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         p = self.find_process('Project64')
         if p is None:

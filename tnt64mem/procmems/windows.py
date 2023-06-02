@@ -8,9 +8,8 @@ import win32con
 from .base import BaseProcessMemory
 
 class WindowsProcessMemory(BaseProcessMemory):
-    def __init__(self, verbose=False):
-        super().__init__()
-        self.verbose = verbose
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.process = None
         self.read_process_memory = ctypes.WinDLL('kernel32', use_last_error=True).ReadProcessMemory
         self.read_process_memory.argtypes = [wintypes.HANDLE, wintypes.LPCVOID, wintypes.LPVOID, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t)]
