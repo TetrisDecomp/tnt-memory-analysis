@@ -16,7 +16,7 @@ class BaseProcessMemory:
         return None
 
     def set_offset(self, offset):
-        if offset != offset & -4:
+        if offset != offset & ~3:
             print(f"offset should be a multiple of 4: {offset}", file=sys.stderr)
             sys.exit(1)
         self.offset = offset
@@ -35,8 +35,8 @@ class BaseProcessMemory:
     def dump(self, addr, length):
         addr += self.offset
 
-        start_addr = addr & -4
-        end_addr = addr + length + 3 & -4
+        start_addr = addr & ~3
+        end_addr = addr + length + 3 & ~3
         data = self.read_mem(start_addr, end_addr - start_addr)
 
         if sys.byteorder != self.target_byteorder:
