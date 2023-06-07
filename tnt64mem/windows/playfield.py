@@ -61,10 +61,6 @@ class Playfield:
         self.trig_data = struct.unpack('>8i', self.procmem.dump(TRIG_ADDRESS, TRIG_BUFFER_SIZE))
         self.game_board = [[bytes(16) for x in range(BOARD_WIDTH)] for y in range(BOARD_HEIGHT)]
 
-        # TODO: can we use a canvas tag instead?
-        self.mobile_piece_minos = [0, 0, 0, 0]
-        self.mobile_outline_minos = [0, 0, 0, 0]
-
         # For FPS stat
         self.frame_count = 0
         self.last_time = time.time()
@@ -127,8 +123,8 @@ class Playfield:
                     if self.game_board[y_coord][x_coord] != cell:
                         fill = PIECE_COLORS[cell[1]]['color']
                         outline = '#303030'
-                        # TODO: isn't this piling up rectangles?  how about we just change the cell color instead?
-                        self.root_canvas.create_rectangle(x_coord * CELL_SIZE, y_coord * CELL_SIZE, x_coord * CELL_SIZE + CELL_SIZE, y_coord * CELL_SIZE + CELL_SIZE, fill=fill, outline=outline)
+                        self.root_canvas.delete(f'cell{cell[8]}')
+                        self.root_canvas.create_rectangle(x_coord * CELL_SIZE, y_coord * CELL_SIZE, x_coord * CELL_SIZE + CELL_SIZE, y_coord * CELL_SIZE + CELL_SIZE, fill=fill, outline=outline, tags=f'cell{cell[8]}')
                         self.game_board[y_coord][x_coord] = cell
 
             if len(mobile_piece) > 0:
@@ -146,11 +142,7 @@ class Playfield:
                 else:
                     sine = self.trig_data[rotation_state * 2]
                     cosine = self.trig_data[rotation_state * 2 + 1]
-                if self.mobile_piece_minos[0] != 0:
-                    for mino in self.mobile_piece_minos:
-                        self.root_canvas.delete(mino)
-                    for mino in self.mobile_outline_minos:
-                        self.root_canvas.delete(mino)
+                self.root_canvas.delete('mobile')
                 mobile_piece_type = mobile_piece[19]
                 if is_mobile == 1:
                     orientation_data_address = int.from_bytes(mobile_piece[36:40], byteorder='big')
@@ -163,24 +155,26 @@ class Playfield:
                         new_y_coord = (x_offset * sine + y_offset * cosine) + rendered_mobile_y_coord
                         fill = PIECE_COLORS[mobile_piece[19]]['color']
                         outline = '#303030'
-                        self.mobile_piece_minos[index] = self.root_canvas.create_rectangle(
+                        self.root_canvas.create_rectangle(
                             new_x_coord * CELL_SIZE + ((mobile_x_subcoord * CELL_SIZE) >> 8),
                             new_y_coord * CELL_SIZE + ((mobile_y_subcoord * CELL_SIZE) >> 8),
                             new_x_coord * CELL_SIZE + CELL_SIZE + ((mobile_x_subcoord * CELL_SIZE) >> 8),
                             new_y_coord * CELL_SIZE + CELL_SIZE + ((mobile_y_subcoord * CELL_SIZE) >> 8),
                             fill=fill,
-                            outline=outline)
+                            outline=outline,
+                            tags='mobile')
                         new_x_coord = (x_offset * cosine - y_offset * sine) + mobile_x_coord
                         new_y_coord = (x_offset * sine + y_offset * cosine) + mobile_y_coord
                         fill = ''
                         outline = '#996312'
-                        self.mobile_outline_minos[index] = self.root_canvas.create_rectangle(
+                        self.root_canvas.create_rectangle(
                             new_x_coord * CELL_SIZE,
                             new_y_coord * CELL_SIZE,
                             new_x_coord * CELL_SIZE + CELL_SIZE,
                             new_y_coord * CELL_SIZE + CELL_SIZE,
                             fill=fill,
-                            outline=outline)
+                            outline=outline,
+                            tags='mobile')
 
         except Exception as error:
             print(error)
