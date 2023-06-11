@@ -36,10 +36,9 @@ def parse_int_bitfield(amount, integer):
 
 
 class Playfield:
-    def __init__(self, root, procmem, verbose=False):
+    def __init__(self, root, procmem):
         self.root = root
         self.procmem = procmem
-        self.verbose = verbose
 
         self.root.title('Playfield')
         self.root.geometry(f'{BOARD_WIDTH * CELL_SIZE}x{BOARD_HEIGHT * CELL_SIZE}')
@@ -99,8 +98,7 @@ class Playfield:
         current_time = time.time()
         self.frame_count += 1
         if (current_time - self.last_time) > 1:  # 1 second
-            if self.verbose:
-                print('FPS:', self.frame_count / (current_time - self.last_time))
+            #print('FPS:', self.frame_count / (current_time - self.last_time))
             self.frame_count = 0
             self.last_time = current_time
 

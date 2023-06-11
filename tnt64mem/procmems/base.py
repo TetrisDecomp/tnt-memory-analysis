@@ -3,16 +3,14 @@ import sys
 import psutil
 
 class BaseProcessMemory:
-    def __init__(self, verbose=False):
-        self.verbose = verbose
+    def __init__(self):
         self.offset = 0x0
         self.target_byteorder = 'big'  # or 'little'
 
     def find_process(self, name):
         for p in psutil.process_iter():
             if name in p.name():
-                if self.verbose:
-                    print(f"process found: {p.pid}\t{p.name()}", file=sys.stderr)
+                print(f"process found: {p.pid}\t{p.name()}", file=sys.stderr)
                 return p
         return None
 
