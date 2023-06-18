@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import time
 
-BOARD_POINTERS = 0x8011FBD0
-BOARD_BUFFER_SIZE = 3200
+#BOARD_POINTERS = 0x8011FBD0
+#BOARD_BUFFER_SIZE = 3200
 
 BASE_ADDR = 0x80000000
 RAM_SIZE = 4 * 1024 * 1024  # 4 MiB
@@ -22,8 +22,8 @@ def hexdump(addr, bytes_):
         addr += 16
     return lines
 
-def init_text(tk_text, base_addr, bytes_len):
-    bytes_ = bytes(bytes_len)
+def init_text(tk_text, base_addr, bytes_len, procmem):
+    bytes_ = procmem.dump(base_addr, bytes_len)
     lines = hexdump(base_addr, bytes_)
 
     save_state = tk_text['state']
@@ -57,18 +57,28 @@ class Memory:
         self.procmem = procmem
 
         self.root.title('Memory')
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
+        content = ttk.Frame(self.root)
 
-        self.t = tk.Text(self.root, width=45, height=20, wrap="none", padx=10, pady=10)
-        ys = ttk.Scrollbar(self.root, orient='vertical', command=self.t.yview)
+        self.paused_var = tk.BooleanVar(value=False)
+        paused = ttk.Checkbutton(content, text="Paused", command=self.on_paused, variable=self.paused_var, onvalue=True)
+
+        self.t = tk.Text(content, width=45, height=20, wrap="none", padx=10, pady=10)
+        ys = ttk.Scrollbar(content, orient='vertical', command=self.t.yview)
         self.t['yscrollcommand'] = ys.set
-        self.t.grid(column=0, row=0, sticky='nwes')
-        ys.grid(column=1, row=0, sticky='ns')
         self.t['state'] = 'disabled'
 
-        #init_text(self.t, 0, BOARD_BUFFER_SIZE)
-        init_text(self.t, 0, RAM_SIZE)
+        #init_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
+        init_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
+
+        content.grid(column=0, row=0, sticky='wnes')
+        paused.grid(column=0, row=0)
+        self.t.grid(column=0, row=1, sticky='wnes')
+        ys.grid(column=1, row=0, rowspan=2, sticky='ns')
+
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        content.columnconfigure(0, weight=1)
+        content.rowconfigure(1, weight=1)
 
         # For FPS stat
         self.frame_count = 0
@@ -88,5 +98,11 @@ class Memory:
             self.frame_count = 0
             self.last_time = current_time
 
-        #update_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
-        update_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
+        if not self.paused_var.get():
+            #update_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
+            update_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
+
+    def on_paused(self):
+        if self.paused_var.get():
+            #init_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
+            init_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
