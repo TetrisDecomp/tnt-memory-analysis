@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sys
 import platform
 
@@ -7,7 +5,7 @@ def auto_int(x):
     return int(x, 0)
 
 def add_args(parser):
-    parser.add_argument('EMU', choices=['project64', 'mupen'], help='emulator')
+    parser.add_argument('EMU', choices=['mupen', 'project64'], help='emulator')
     group_mupen = parser.add_argument_group('mupen', 'When running mupen on the command line, you should see it print out "&ConfigOpenSection is {ADDRESS}".')
     group_mupen.add_argument('--cos', metavar='ADDRESS', type=auto_int, help='&ConfigOpenSection address')
 
