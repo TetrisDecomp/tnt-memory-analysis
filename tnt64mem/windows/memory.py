@@ -2,9 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import time
 
-#BOARD_POINTERS = 0x8011FBD0
-#BOARD_BUFFER_SIZE = 3200
-
 BASE_ADDR = 0x80000000
 RAM_SIZE = 4 * 1024 * 1024  # 4 MiB
 
@@ -33,7 +30,6 @@ def init_text(tk_text, base_addr, bytes_len, procmem):
 
 def update_text(tk_text, base_addr, bytes_len, procmem):
     yview = tk_text.yview()
-    #print(yview)
     start = int(yview[0] * bytes_len) & ~15
     end = int(yview[1] * bytes_len) + 15 & ~15
     addr = base_addr + start
@@ -47,7 +43,6 @@ def update_text(tk_text, base_addr, bytes_len, procmem):
         start_line = (start >> 4) + 1
         end_line = start_line + len(lines)
         tk_text.replace(f'{start_line}.0', f'{end_line}.0-1c', '\n'.join(lines))
-        #print(f'{start_line}.0', f'{end_line}.0-1c')
 
         tk_text['state'] = save_state
 
@@ -67,7 +62,6 @@ class Memory:
         self.t['yscrollcommand'] = ys.set
         self.t['state'] = 'disabled'
 
-        #init_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
         init_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
 
         content.grid(column=0, row=0, sticky='wnes')
@@ -80,29 +74,15 @@ class Memory:
         content.columnconfigure(0, weight=1)
         content.rowconfigure(1, weight=1)
 
-        # For FPS stat
-        self.frame_count = 0
-        self.last_time = time.time()
-
         self.root.after_idle(self.update)
 
     def update(self):
         # Update every 16 ms (target 60 FPS)
         self.root.after(16, self.update)
 
-        # For FPS stat
-        current_time = time.time()
-        self.frame_count += 1
-        if (current_time - self.last_time) > 1:  # 1 second
-            #print('FPS:', self.frame_count / (current_time - self.last_time))
-            self.frame_count = 0
-            self.last_time = current_time
-
         if not self.paused_var.get():
-            #update_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
             update_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)
 
     def on_paused(self):
         if self.paused_var.get():
-            #init_text(self.t, self.procmem.deref(self.procmem.deref(BOARD_POINTERS)), BOARD_BUFFER_SIZE, self.procmem)
             init_text(self.t, BASE_ADDR, RAM_SIZE, self.procmem)

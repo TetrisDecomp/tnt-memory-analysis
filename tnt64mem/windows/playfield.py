@@ -57,18 +57,13 @@ class Playfield:
         self.trig_data = struct.unpack('>8i', self.procmem.dump(TRIG_ADDRESS, TRIG_BUFFER_SIZE))
         self.game_board = [[bytes(16) for x in range(BOARD_WIDTH)] for y in range(BOARD_HEIGHT)]
 
-        # For FPS stat
-        self.frame_count = 0
-        self.last_time = time.time()
-
         self.root.after_idle(self.update)
 
     def update_cell_info(self, event):
-        #canvas_x, canvas_y = self.root_canvas.canvasx(event.x), self.root_canvas.canvasy(event.y)
-        #id = self.root_canvas.find_closest(canvas_x, canvas_y)[0]
+        canvas_x, canvas_y = int(self.root_canvas.canvasx(event.x)), int(self.root_canvas.canvasy(event.y))
 
-        x = event.x // CELL_SIZE
-        y = (event.y // CELL_SIZE) - ABOVE_BOARD_HEIGHT
+        x = canvas_x // CELL_SIZE
+        y = (canvas_y // CELL_SIZE) - ABOVE_BOARD_HEIGHT
         if 0 <= x < BOARD_WIDTH and 0 <= y < BOARD_HEIGHT:
             cell = self.game_board[y][x]
             if cell[1] >= len(PIECE_COLORS):
@@ -97,14 +92,6 @@ class Playfield:
     def update(self):
         # Update every 16 ms (target 60 FPS)
         self.root.after(16, self.update)
-
-        # For FPS stat
-        current_time = time.time()
-        self.frame_count += 1
-        if (current_time - self.last_time) > 1:  # 1 second
-            #print('FPS:', self.frame_count / (current_time - self.last_time))
-            self.frame_count = 0
-            self.last_time = current_time
 
         self._update()
 
