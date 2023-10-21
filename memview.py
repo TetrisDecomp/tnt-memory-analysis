@@ -5,7 +5,7 @@ import argparse
 import tkinter as tk
 
 from tnt64mem.platform import add_args, get_procmem
-from tnt64mem.windows.playfield import Playfield
+from tnt64mem.windows.memory import Memory
 
 def main():
     parser = argparse.ArgumentParser(description='')
@@ -15,7 +15,7 @@ def main():
     procmem = get_procmem(args)
 
     root = tk.Tk()
-    Playfield(root, procmem)
+    Memory(root, procmem)
     root.mainloop()
 
 if __name__ == '__main__':
